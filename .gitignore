@@ -1,0 +1,32 @@
+.DS_Store
+node_modules
+
+# build dist
+.nyc_output
+*.log
+/dist/
+/cjs/
+/esm/
+/release/
+/debug/
+/coverage/
+/docs/
+/tmp
+/cache
+/logs
+
+# manager
+npm-debug.log
+package-lock.json
+yarn.lock
+yarn-error.log
+pnpm-lock.yaml
+.pnpm-debug.log
+
+# config
+# .flh.config.js
+/env-config.sh
+/w2.x-scripts.config.js
+/w2.x-scripts.cache.json
+/test-*
+/local-x-scripts-rules
