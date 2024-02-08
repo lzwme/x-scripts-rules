@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-01-24 08:54:08
  * @LastEditors: renxia
- * @LastEditTime: 2024-02-07 12:02:08
+ * @LastEditTime: 2024-02-08 10:43:49
  * @Description:
  */
 
@@ -232,5 +232,13 @@ module.exports = [
     url: 'https://fdt-gateway-prod.dm.newcowin.com/customer/community-vip-user/exterior/user/getMe',
     getCacheUid: ({ resBody, headers }) => ({ uid: resBody?.data?.id, data: `${headers.devicesn}@@@${headers.cookie}` }),
     handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'alyp',
+    desc: '阿里云盘',
+    url: 'https://auth.alipan.com/v2/account/token',
+    getCacheUid: ({ resBody }) => ({ uid: resBody?.user_id, data: resBody?.refresh_token }),
+    handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => d.data).join('@') } }),
   },
 ];
