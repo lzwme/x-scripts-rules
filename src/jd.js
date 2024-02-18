@@ -49,7 +49,7 @@ module.exports = [
           name: 'JD_WSCK',
           value: allCacheData
             .filter(d => d.data.wskey)
-            .map(d => X.cookieStringfiy(d.data, { onlyKeys: ['pin', 'wskey'] }) + ';')
+            .map(d => `pin=${d.data.pin};wspkey=${d.data.wskey}`)
             .join('\n'),
           desc: '京东 wskey',
         },
