@@ -1,8 +1,8 @@
 {
   "name": "x-scripts-rules",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "基于 @lzwme/whistle.x-scripts 插件规范开发的规则脚本库",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@lzwme/whistle.x-scripts": "^0.0.1"
+    "@lzwme/whistle.x-scripts": "^0.0.2"
   }
 }
