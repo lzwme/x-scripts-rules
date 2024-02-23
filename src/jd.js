@@ -58,7 +58,7 @@ module.exports = [
       return { envConfig };
     },
     /** 更新处理已存在的环境变量，返回合并后的结果。若无需修改则可返回空 */
-    updateEnvValue({ value }, oldValue, X) {
+    updateEnvValue({ value }, oldValue = '', X) {
       const sep = oldValue.includes('&') ? '&' : '\n';
       if (sep !== '\n') value = value.replaceAll('\n', sep);
       oldValue.split(sep).forEach(cookie => {

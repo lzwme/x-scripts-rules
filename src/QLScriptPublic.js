@@ -241,4 +241,15 @@ module.exports = [
     getCacheUid: ({ resBody }) => ({ uid: resBody?.user_id, data: resBody?.refresh_token }),
     handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => d.data).join('@') } }),
   },
+  {
+    on: 'res-body',
+    ruleId: 'sysxc',
+    desc: '书亦烧仙草',
+    method: '*',
+    url: 'https://scrm-prod.shuyi.org.cn/saas-gateway/api/mini-app/v1/member/mine**',
+    getCacheUid: ({ resBody, url }) =>  resBody?.data?.user?.uid,
+    handler({ headers }) {
+      if (headers.auth) return { envConfig: { value: headers.auth } };
+    },
+  },
 ];
