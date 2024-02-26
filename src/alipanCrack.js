@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-22 19:46:56
  * @LastEditors: renxia
- * @LastEditTime: 2024-02-22 21:43:58
+ * @LastEditTime: 2024-02-28 09:59:53
  * @Description:
  */
 
@@ -53,7 +53,7 @@ module.exports = [
         } else if (modified.personal_rights_info) {
           // body4
           console.log('修改用户账户信息和限制权限', url);
-          modified.personal_rights_info.spu_id = 'vip';
+          modified.personal_rights_info.spu_id = 'svip';
           modified.personal_rights_info.name = 'SVIP';
           modified.personal_space_info.total_size = 43980465111040; // 40Tb
         }  else if (modified.drive_capacity_details) {
@@ -74,23 +74,23 @@ module.exports = [
           modified.membershipIcon = 'https://gw.alicdn.com//imgextra//i3//O1CN01iPKCuZ1urjDgiry5c_!!6000000006091-2-tps-60-60.png';
         } else {
           // body1
-          console.log('修改会员状态', url);
-          modified = {
-            ...modified,
-            identity: 'svip',
-            level: '8t',
-            icon: 'https://gw.alicdn.com/imgextra/i3/O1CN01iPKCuZ1urjDgiry5c_!!6000000006091-2-tps-60-60.png',
-            mediumIcon: 'https://gw.alicdn.com/imgextra/i4/O1CN01Mk916Y1c99aVBrgxM_!!6000000003557-2-tps-222-60.png',
-            status: 'normal',
-            vipList: [
-              {
-                name: '8TB超级会员',
-                code: 'svip.8t',
-                promotedAt: 1675599847,
-                expire: 1806600189,
-              },
-            ],
-          };
+          if (modified.vipList) {
+            console.log('修改会员状态', url);
+            modified = {
+              ...modified,
+              identity: 'svip',
+              level: '8t',
+              icon: 'https://gw.alicdn.com/imgextra/i3/O1CN01iPKCuZ1urjDgiry5c_!!6000000006091-2-tps-60-60.png',
+              mediumIcon: 'https://gw.alicdn.com/imgextra/i4/O1CN01Mk916Y1c99aVBrgxM_!!6000000003557-2-tps-222-60.png',
+              status: 'normal',
+            };
+            modified.vipList[0] = {
+              name: '8TB超级会员',
+              code: 'svip.8t',
+              promotedAt: 1675599847,
+              expire: 1806600189,
+            };
+          }
         }
 
         return { body: modified };

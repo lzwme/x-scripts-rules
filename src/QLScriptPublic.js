@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-01-24 08:54:08
  * @LastEditors: renxia
- * @LastEditTime: 2024-02-08 10:43:49
+ * @LastEditTime: 2024-02-27 10:18:16
  * @Description:
  */
 
@@ -66,7 +66,7 @@ module.exports = [
     url: 'https://clubwx.hm.liby.com.cn/b2cMiniApi/me/getUserData.htm',
     getCacheUid: ({ resBody }) => resBody?.data?.userName,
     handler({ allCacheData }) {
-      const value = allCacheData.map(d => `${d.headers['unionid']}#${d.headers['x-wxde54fd27cb59db51-token']}`).join('&');
+      const value = allCacheData.map(d => `${d.headers['unionid']}#${d.headers['x-wxde54fd27cb59db51-token']}`).join('\n');
       if (value) return { envConfig: { name: this.ruleId, value } };
     },
   },
@@ -77,9 +77,8 @@ module.exports = [
     method: 'get',
     url: 'https://xapi.ddky.com/mcp/weixin/rest.htm?sign=*',
     getCacheUid: ({ url, X }) => {
-      const { getUrlParams } = require('@lzwme/fe-utils/cjs/common/url');
-      const query = getUrlParams(url);
-      return query.loginToken && query.userId ? { uid: query.userId, data: `${query.loginToken}&${query.userId}&${query.uDate}` } : null;
+      const query = X.FeUtils.getUrlParams(url);
+      return query.loginToken && query.userId ? { uid: query.userId, data: `${query.loginToken}&${query.userId}&${query.uDate}` } : '';
     },
     handler({ allCacheData }) {
       const value = allCacheData.map(d => d.data).join('@');
@@ -127,6 +126,7 @@ module.exports = [
     },
   },
   {
+    disabled: true,
     on: 'req-header',
     ruleId: 'wx_xlxyh_data',
     desc: '微信小程序_骁龙骁友会',
@@ -246,10 +246,20 @@ module.exports = [
     ruleId: 'sysxc',
     desc: '书亦烧仙草',
     method: '*',
-    url: 'https://scrm-prod.shuyi.org.cn/saas-gateway/api/mini-app/v1/member/mine**',
-    getCacheUid: ({ resBody, url }) =>  resBody?.data?.user?.uid,
-    handler({ headers }) {
-      if (headers.auth) return { envConfig: { value: headers.auth } };
+    url: 'https://scrm-prod.shuyi.org.cn/saas-gateway/api/mini-app/v1/{member/mine,account/login}**',
+    getCacheUid: ({ resBody, headers, url }) => {
+      const data = {
+        uid: resBody?.data?.user?.uid || resBody?.data?.member?.uid,
+        data: headers.auth || resBody?.data?.auth,
+      };
+      return data;
+    },
+    handler({ allCacheData }) {
+      const value = allCacheData
+        .map(d => d.data)
+        .filter(Boolean)
+        .join('\n');
+      return { envConfig: { value } };
     },
   },
 ];
