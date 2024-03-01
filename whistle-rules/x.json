@@ -1,0 +1,8 @@
+{
+  "rules": [
+    "www.zhihu.com ua://{iphoneUA}"
+  ],
+  "values": {
+    "iphoneUA": "osee2unifiedRelease/17634_osee2unifiedReleaseVersion/9.38.1_Mozilla/5.0_(iPhone;CPU_iPhone_OS 17_0_2_like_Mac_OS_X)_AppleWebKit/605.1.15_Mobile/15E148"
+  }
+}

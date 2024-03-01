@@ -1,6 +1,6 @@
-# 知乎过滤AD
-https://www.zhihu.com/api/v4/questions/*/related-readings statusCode://200
-https://www.zhihu.com/api/v4/answers/*/related-readings statusCode://200
+# test: 知乎过滤
+^https://www.zhihu.com/api/v4/questions/*/related-readings statusCode://200
+^https://www.zhihu.com/api/v4/answers/*/related-readings statusCode://200
 https://www.zhihu.com/api/v4/hot_recommendation statusCode://200
 https://www.zhihu.com/commercial_api/banners_v3/mobile_banner statusCode://200
-https://zhuanlan.zhihu.com/api/articles/*/recommendation statusCode://200
+^https://zhuanlan.zhihu.com/api/articles/*/recommendation statusCode://200

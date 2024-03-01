@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-28 10:08:29
  * @LastEditors: renxia
- * @LastEditTime: 2024-02-28 15:21:03
+ * @LastEditTime: 2024-03-01 14:02:43
  * @Description: 待验证
  */
 
@@ -61,7 +61,7 @@ module.exports = [
       let bodyStr = JSON.stringify(body);
 
       if (body.vip_info && url.indexOf('people/self') != -1) {
-        X.FeUtils.assgin(body, {
+        X.FeUtils.assign(body, {
           vip_info: {
             is_vip: true,
             vip_type: 1,
@@ -73,7 +73,7 @@ module.exports = [
       }
 
       if (url.indexOf('unlimited/go/my_card') != -1) {
-        X.FeUtils.assgin(body, {
+        X.FeUtils.assign(body, {
           button_text: '点击反馈',
           jump_url: 'https://github.com/lzwme/x-scripts-rules/issues',
           title: '2999-09-09到期',
