@@ -14,6 +14,7 @@ module.exports = [
     ruleId: 'alipanVip',
     desc: '阿里云盘解锁vip',
     method: '*',
+    mitm: '(api|member).alipan.com',
     url: /^https:\/\/(api|member)\.alipan\.com\/(adrive|v1|v2|business|databox)\/.+\/(me|vip|feature|info|get_personal_info|driveCapacityDetails|getUserCapacityInfo)/,
     handler({ resBody, url, X }) {
       if (typeof resBody === 'object') {
@@ -56,7 +57,7 @@ module.exports = [
           modified.personal_rights_info.spu_id = 'svip';
           modified.personal_rights_info.name = 'SVIP';
           modified.personal_space_info.total_size = 43980465111040; // 40Tb
-        }  else if (modified.drive_capacity_details) {
+        } else if (modified.drive_capacity_details) {
           console.log('修改容量管理详情', url);
 
           // modified.capacity_level_info = {

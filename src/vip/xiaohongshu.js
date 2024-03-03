@@ -13,6 +13,7 @@ module.exports = [
     ruleId: 'xiaohongshuVip',
     desc: '小红书去广告、解除下载限制、画质增强等',
     method: '*',
+    mitm: '*.xiaohongshu.com',
     url: 'https://*.xiaohongshu.com/v{1,2,3,4,6,10}/**',
     handler({ resBody: body, url, X }) {
       if (typeof body !== 'object') return;

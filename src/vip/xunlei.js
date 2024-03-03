@@ -13,6 +13,7 @@ module.exports = [
     ruleId: 'xunleiVipCrack',
     desc: '迅雷 VIP',
     method: '*',
+    mitm: 'xluser-ssl.zhihu.com',
     url: /^https?:\/\/xluser-ssl\.xunlei\.com\/xluser\.core\.login\/v3\/getuserinfo$/,
     handler({ resBody: body, url, X }) {
       if (typeof body === 'object') {

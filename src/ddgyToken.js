@@ -13,6 +13,7 @@ module.exports = [
     ruleId: 'ddgyToken',
     desc: '滴滴果园',
     method: 'POST',
+    mitm: 'game.xiaojukeji.com',
     url: 'https://game.xiaojukeji.com/api/game/plant/enter?*',
     getCacheUid: ({ reqBody, resBody }) => ({ uid: resBody?.data?.uid, data: { reqBody, uid: resBody?.data?.uid } }),
     handler({ allCacheData }) {

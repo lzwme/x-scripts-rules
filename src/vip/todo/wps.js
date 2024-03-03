@@ -13,6 +13,7 @@ module.exports = [
     ruleId: 'wpsVipCrack',
     desc: 'WPS VIP',
     method: '*',
+    mitm: /^https?:\/\/[a-z-]*account\.wps\.c(n|om)/,
     url: /^https?:\/\/[a-z-]*account\.wps\.c(n|om)(:\d+|)\/api\/users/,
     handler({ resBody : body, url, X }) {
       if (typeof body === 'object') {

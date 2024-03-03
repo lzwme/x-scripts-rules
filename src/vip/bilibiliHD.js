@@ -14,6 +14,7 @@ module.exports = [
     ruleId: 'bilibiliHD',
     desc: 'B站高清解锁去广告',
     method: '*',
+    mitm: '*.bilibili.com',
     url: 'https://*.bilibili.com/x/v2/**',
     cache: {
       bilibili_story_aid: '',

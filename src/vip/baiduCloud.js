@@ -14,6 +14,7 @@ module.exports = [
     ruleId: 'baiduCloudVip',
     desc: '百度网盘 解锁在线视频倍率/清晰度',
     method: '*',
+    mitm: 'pan.zhihu.com',
     url: /^https?:\/\/pan\.baidu\.com\/(youai\/(user\/.+\/getminfo|membership\/.+\/adswitch)|(rest\/.+\/membership\/user|act\/.+\/(bchannel|welfare)\/list|api\/usercfg))/,
     // url: 'https://pan.baidu.com/rest/*/membership/user',
     handler({ resBody: body, url, X }) {
