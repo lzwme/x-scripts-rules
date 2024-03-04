@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-22 19:46:56
  * @LastEditors: renxia
- * @LastEditTime: 2024-02-28 09:59:53
+ * @LastEditTime: 2024-03-05 11:16:12
  * @Description:
  */
 
@@ -72,7 +72,7 @@ module.exports = [
           // body7
           console.log('修改用户基础信息', url);
           modified.membershipIdentity = 'svip';
-          modified.membershipIcon = 'https://gw.alicdn.com//imgextra//i3//O1CN01iPKCuZ1urjDgiry5c_!!6000000006091-2-tps-60-60.png';
+          modified.membershipIcon = 'https://gw.alicdn.com/imgextra//i3//O1CN01iPKCuZ1urjDgiry5c_!!6000000006091-2-tps-60-60.png';
         } else {
           // body1
           if (modified.vipList) {

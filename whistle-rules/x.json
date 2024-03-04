@@ -1,8 +1,10 @@
 {
   "rules": [
-    "www.zhihu.com ua://{iphoneUA}"
+    "www.zhihu.com ua://{iphoneUA}",
+    "^https?://www\\.bing\\.com/(search|new|web) ua://{edgUA}"
   ],
   "values": {
-    "iphoneUA": "osee2unifiedRelease/17634_osee2unifiedReleaseVersion/9.38.1_Mozilla/5.0_(iPhone;CPU_iPhone_OS 17_0_2_like_Mac_OS_X)_AppleWebKit/605.1.15_Mobile/15E148"
+    "iphoneUA": "osee2unifiedRelease/17634_osee2unifiedReleaseVersion/9.38.1_Mozilla/5.0_(iPhone;CPU_iPhone_OS 17_0_2_like_Mac_OS_X)_AppleWebKit/605.1.15_Mobile/15E148",
+    "edgUA": "AppleWebKit/537.36 Chrome/110.0 Safari/537.36 Edg/110.0"
   }
 }

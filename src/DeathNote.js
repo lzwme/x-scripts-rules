@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-19 19:23:02
  * @LastEditors: renxia
- * @LastEditTime: 2024-02-20 17:26:59
+ * @LastEditTime: 2024-03-06 15:35:11
  * @Description: https://github.com/leafTheFish/DeathNote
  */
 
@@ -26,9 +26,8 @@ module.exports = [
     url: 'https://*.tenpay.com/cgi-bin/**',
     method: '*',
     data: {},
-    handler({ url, cookieObj }) {
-      const { getUrlParams } = require('@lzwme/fe-utils/cjs/common/url');
-      const obj = Object.assign(getUrlParams(url), cookieObj);
+    handler({ url, cookieObj, X }) {
+      const obj = Object.assign(X.FeUtils.getUrlParams(url), cookieObj);
       const keys = ['openid', 'fskey', 'wzq_qlskey', 'wzq_qluin'];
       keys.forEach(key => obj[key] && (this.data[key] = obj[key]));
       // console.log(obj, this.data);
@@ -43,6 +42,20 @@ module.exports = [
     getCacheUid: ({ cookieObj: ck }) => ({ uid: ck.user_id, data: `SID=${ck.SID};cookie2=${ck.cookie2};grabCoupon=1` }),
     handler({ allCacheData }) {
       return { envConfig: { value: allCacheData.map(d => d.data).join('\n') } };
+    }
+  },
+  {
+    on: 'req-header',
+    ruleId: 'sfsyUrl',
+    desc: '顺丰速运',
+    method: 'get',
+    url: 'https://mcs-mimp-web.sf-express.com/mcs-mimp/share/weChat/shareGiftReceiveRedirect?**',
+    getCacheUid({ url, X }) {
+      const p = X.FeUtils.getUrlParams(url);
+      return { uid: p.mobile, data: url };
+    },
+    handler({ allCacheData: data }) {
+      return { envConfig: { value: data.map(d => d.data).join('\n') } };
     }
   }
 ];

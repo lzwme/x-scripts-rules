@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-01-24 08:54:08
  * @LastEditors: renxia
- * @LastEditTime: 2024-02-27 10:18:16
+ * @LastEditTime: 2024-03-23 17:15:21
  * @Description:
  */
 
@@ -235,31 +235,22 @@ module.exports = [
   },
   {
     on: 'res-body',
-    ruleId: 'alyp',
-    desc: '阿里云盘',
-    url: 'https://auth.alipan.com/v2/account/token',
-    getCacheUid: ({ resBody }) => ({ uid: resBody?.user_id, data: resBody?.refresh_token }),
-    handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => d.data).join('@') } }),
+    ruleId: 'xinxi',
+    desc: '心喜_小程序',
+    method: 'get',
+    url: 'https://api.xinc818.com/mini/user',
+    getCacheUid: ({ resBody, headers }) => ({ uid: resBody?.data?.id, data: `${headers.sso}##${resBody?.data?.id}` }),
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
   },
   {
-    on: 'res-body',
-    ruleId: 'sysxc',
-    desc: '书亦烧仙草',
-    method: '*',
-    url: 'https://scrm-prod.shuyi.org.cn/saas-gateway/api/mini-app/v1/{member/mine,account/login}**',
-    getCacheUid: ({ resBody, headers, url }) => {
-      const data = {
-        uid: resBody?.data?.user?.uid || resBody?.data?.member?.uid,
-        data: headers.auth || resBody?.data?.auth,
-      };
-      return data;
-    },
-    handler({ allCacheData }) {
-      const value = allCacheData
-        .map(d => d.data)
-        .filter(Boolean)
-        .join('\n');
-      return { envConfig: { value } };
-    },
-  },
+    on: 'req-body',
+    ruleId: 'didi',
+    desc: '滴滴领券&果园 - 单账号',
+    method: 'POST',
+    url: 'https://api.didi.cn/**',
+    getCacheUid: () => 'lzwme',
+    handler({ reqBody }) {
+      if (reqBody?.token) return { envConfig: { value: reqBody.token + '#3' } };
+    }
+  }
 ];

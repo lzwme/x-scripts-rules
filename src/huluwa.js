@@ -29,8 +29,8 @@ module.exports = {
     if (allCacheData.length === 0) return;
     appid = /miniProgram\/(wx\w+)/.exec(headers['user-agent'])?.[1] || reqBody?.appId || appid;
     if (appid && apps[appid] && headers['x-access-token']) {
-      const allUserData = allCacheData.map(d => d.data).filter(d => d.appid === appid);
-      const value = allUserData.map(d => d.token).join('\n');
+      const allUserData = allCacheData.filter(d => d.data.appid === appid);
+      const value = allUserData.map(d => `${d.data.token}##${d.uid}`).join('\n');
       const envConfig = { name: `${apps[appid].key}_COOKIE`, value, desc: apps[appid].desc + '-huluwa' };
       return { envConfig };
     }
