@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-01-24 08:54:08
  * @LastEditors: renxia
- * @LastEditTime: 2024-03-23 17:15:21
+ * @LastEditTime: 2024-03-29 09:29:44
  * @Description:
  */
 
@@ -90,11 +90,13 @@ module.exports = [
     ruleId: 'jsbaxfls',
     desc: '杰士邦安心福利社',
     method: 'get',
-    url: 'https://m.jissbon.com/api/user/info',
-    getCacheUid: ({ resBody }) => resBody?.data?.userInfo?.user_id,
-    handler({ allCacheData }) {
-      const value = allCacheData.map(d => d.headers['access-token']).join('&');
-      if (value) return { envConfig: { name: this.ruleId, value } };
+    url: 'https://vip.ixiliu.cn/mp/user/info',
+    getCacheUid: ({ resBody, headers }) => {
+      const uid = resBody?.data?.userInfo?.user_id;
+      if (uid) return { uid, data: `${headers['access-token']}` };
+    },
+    handler({ allCacheData: D }) {
+      return { envConfig: { value: D.map(d => d.data).join('\n') } };
     },
   },
   {
@@ -126,16 +128,16 @@ module.exports = [
     },
   },
   {
-    disabled: true,
+    disabled: false,
     on: 'req-header',
-    ruleId: 'wx_xlxyh_data',
+    ruleId: 'wx_xlxyh',
     desc: '微信小程序_骁龙骁友会',
     url: 'https://qualcomm.growthideadata.com/qualcomm-app/**',
     getCacheUid: ({ headers }) => {
-      return { uid: headers.userid, data: `${headers.sessionkey}&${headers.userid}` };
+      return { uid: headers.userid, data: `${headers.sessionkey}#${headers.userid}` };
     },
     handler({ allCacheData }) {
-      const value = allCacheData.map(d => d.data).join('@');
+      const value = allCacheData.map(d => d.data).join('&');
       if (value) return { envConfig: { name: this.ruleId, value } };
     },
   },
@@ -186,7 +188,7 @@ module.exports = [
   {
     on: 'req-header',
     ruleId: 'gacmotorToken',
-    desc: '广汽传祺',
+    desc: '广汽传祺 - 单账号',
     method: 'get',
     url: 'https://next.gacmotor.com/mall/**',
     getCacheUid: () => 'gacmotorToken',
@@ -251,6 +253,74 @@ module.exports = [
     getCacheUid: () => 'lzwme',
     handler({ reqBody }) {
       if (reqBody?.token) return { envConfig: { value: reqBody.token + '#3' } };
-    }
-  }
+    },
+  },
+  {
+    on: 'req-header',
+    ruleId: 'heyeHealth',
+    desc: '荷叶健康小程序-果园[免费领水果]',
+    url: 'https://tuan.api.ybm100.com/miniapp/my/accountInfo',
+    getCacheUid: ({ headers }) => ({ uid: headers.userid, data: `${headers.token}##${headers.userid}` }),
+    handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'yyq_new',
+    desc: '悦野圈-小程序',
+    url: 'https://customer.yueyequan.cn/**',
+    method: 'GET',
+    getCacheUid: ({ cookieObj: C }) => ({ uid: C.userid, data: `${C.usersig}#${C.userid}` }),
+    handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => d.data).join('\n') } }),
+    updateEnvValue: /#(\d+)/,
+  },
+  {
+    on: 'res-body',
+    ruleId: 'yuepaiToken',
+    desc: '悦拜APP_小程序/app',
+    method: 'POST',
+    url: 'https://app.yuebuy.cn/api/user/UserCenter',
+    getCacheUid: ({ headers, resBody, url }) => {
+      const uid = resBody?.data?.user?.id;
+      if (uid) return { uid, data: `${resBody.data.user.token || headers['x-auth-token']}##${uid}` };
+    },
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'hlToken',
+    desc: '哈啰签到',
+    method: 'POST',
+    url: 'https://api.hellobike.com/api?user.wallet.account',
+    getCacheUid: ({ resBody, reqBody, url }) => {
+      const uid = resBody?.data?.userNewId;
+      if (uid) return { uid, data: `${reqBody.token}##${uid}` };
+    },
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'dewuCookies',
+    desc: '得物-心愿森林-单用户',
+    method: 'POST',
+    url: 'https://app.dewu.com/**',
+    getCacheUid: ({ headers: H, cookieObj: C }) => {
+      const dutoken = C.duToken || H.dutoken || H.cookietoken;
+      if (dutoken && H.sk) {
+        const uid = dutoken.split('|')[1];
+        if (uid) {
+          return { uid, data: `${H['x-auth-token'].replace(/Bearer /, '')}#${H.sk}#${dutoken}` };
+        }
+      }
+    },
+    handler: ({ url, headers: H, allCacheData: D }) => {
+      const ua = H['user-agent'];
+      if (ua?.includes('Mozilla'))
+        return {
+          envConfig: [
+            { name: 'dewuCookies', value: D.map(d => d.data).join('\n') },
+            { name: 'dewuUA', value: ua },
+          ],
+        };
+    },
+  },
 ];

@@ -1,5 +1,5 @@
 const apps = {
-  wxded2e7e6d60ac09d: { key: 'XLHG', channelId: '8', desc: '新联惠购' },
+  wxded2e7e6d60ac09d: { key: 'XLHG', channelId: '8', desc: '偲源惠购' },
   wx61549642d715f361: { key: 'GLYP', channelId: '7', desc: '贵旅优品' },
   wx613ba8ea6a002aa8: { key: 'KGLG', channelId: '2', desc: '空港乐购' },
   wx936aa5357931e226: { key: 'HLQG', channelId: '6', desc: '航旅黔购' },
