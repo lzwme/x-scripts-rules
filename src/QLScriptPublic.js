@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-01-24 08:54:08
  * @LastEditors: renxia
- * @LastEditTime: 2024-03-29 09:29:44
+ * @LastEditTime: 2024-04-02 14:24:22
  * @Description:
  */
 
@@ -299,16 +299,16 @@ module.exports = [
   },
   {
     on: 'req-header',
-    ruleId: 'dewuCookies',
+    ruleId: 'dewuSK',
     desc: '得物-心愿森林-单用户',
     method: 'POST',
     url: 'https://app.dewu.com/**',
     getCacheUid: ({ headers: H, cookieObj: C }) => {
       const dutoken = C.duToken || H.dutoken || H.cookietoken;
-      if (dutoken && H.sk) {
+      if (dutoken) { //  && H.sk
         const uid = dutoken.split('|')[1];
         if (uid) {
-          return { uid, data: `${H['x-auth-token'].replace(/Bearer /, '')}#${H.sk}#${dutoken}` };
+          return { uid, data: `${H['x-auth-token'].replace(/Bearer /, '')}#${dutoken}` };
         }
       }
     },
@@ -317,7 +317,8 @@ module.exports = [
       if (ua?.includes('Mozilla'))
         return {
           envConfig: [
-            { name: 'dewuCookies', value: D.map(d => d.data).join('\n') },
+            { name: 'dewuCK', value: D.map(d => d.data).join('\n') },
+            { name: 'dewuSK', value: H.sk },
             { name: 'dewuUA', value: ua },
           ],
         };

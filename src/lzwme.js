@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-06 11:25:49
  * @LastEditors: renxia
- * @LastEditTime: 2024-03-18 09:45:24
+ * @LastEditTime: 2024-04-02 14:00:16
  * @Description:
  */
 /** @type {import('@lzwme/whistle.x-scripts').RuleItem[]} */
@@ -67,9 +67,18 @@ module.exports = [
     method: '*',
     getCacheUid: ({ headers, resBody }) => {
       const uid = resBody?.context?.currentUser.id;
-      if (uid) return ({ uid, data: `${headers.cookie.replace(/ XD=[^;]+;/, '')}##${uid}` });
+      if (uid) return { uid, data: `${headers.cookie.replace(/ XD=[^;]+;/, '')}##${uid}` };
     },
     handler: ({ allCacheData: d }) => ({ envConfig: { value: d.map(d => `${d.data}`).join('\n') } }),
     updateEnvValue: /##\d+/,
   },
+  {
+    on: 'req-header',
+    ruleId: 'dkl_token',
+    desc: '迪卡侬签到-单账号',
+    url: 'https://api-cn.decathlon.com.cn/**',
+    method: '*',
+    getCacheUid: () => 'default',
+    handler: ({ headers }) => headers.authorization && ({ envConfig: { value: headers.authorization } }),
+  }
 ];

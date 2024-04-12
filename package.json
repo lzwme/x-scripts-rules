@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@lzwme/whistle.x-scripts": "^0.0.2"
+    "@lzwme/whistle.x-scripts": "^0.0.3"
   }
 }

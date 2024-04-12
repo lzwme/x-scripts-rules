@@ -9,7 +9,9 @@ const apps = {
   wxee0ce83ab4b26f9c: { key: 'YLQX', channelId: '9', desc: '驿路黔寻' },
 };
 
-let appid = '';
+// <token, { appid, phone, }>
+const tokenCache = new Map();
+
 /**
  * 葫芦娃 token 自动提取保存或上传至青龙
  * @type {import('@lzwme/whistle.x-scripts').RuleItem}
@@ -20,18 +22,25 @@ module.exports = {
   desc: '葫芦娃 x-access-token 获取',
   url: 'https://gw.huiqunchina.com/front-manager/api/**',
   getCacheUid: ({ headers, reqBody, resBody }) => {
-    appid = /miniProgram\/(wx\w+)/.exec(headers['user-agent'])?.[1] || reqBody?.appId || appid;
-    const uid = resBody?.data?.openId;
     const token = headers['x-access-token'];
-    if (uid && appid && token) return { uid, data: { token, appid } };
+    if (!token) return;
+
+    const info = tokenCache.get(token) || { appid: '', uid: '', token };
+    if (resBody?.data?.phone) info.uid = resBody?.data?.phone;
+    if (!info.appid) info.appid = /miniProgram\/(wx\w+)/.exec(headers['user-agent'])?.[1] || reqBody?.appId;
+    tokenCache.set(token, info);
+
+    if (info.uid && info.appid) return { uid: `${info.appid}_${info.uid}`, data: { token, appid: info.appid, uid: info.uid } };
   },
   handler: ({ allCacheData, headers, reqBody }) => {
-    if (allCacheData.length === 0) return;
-    appid = /miniProgram\/(wx\w+)/.exec(headers['user-agent'])?.[1] || reqBody?.appId || appid;
-    if (appid && apps[appid] && headers['x-access-token']) {
-      const allUserData = allCacheData.filter(d => d.data.appid === appid);
-      const value = allUserData.map(d => `${d.data.token}##${d.uid}`).join('\n');
-      const envConfig = { name: `${apps[appid].key}_COOKIE`, value, desc: apps[appid].desc + '-huluwa' };
+    const info = tokenCache.get(headers['x-access-token']);
+    if (!info) return;
+
+    const allUserData = allCacheData.filter(d => d.data.appid === info.appid);
+
+    if (allUserData.length) {
+      const value = allUserData.map(d => `${d.data.token}##${d.data.uid || d.uid}`).join('\n');
+      const envConfig = { name: `${apps[info.appid].key}_COOKIE`, value, desc: apps[info.appid].desc + '-huluwa' };
       return { envConfig };
     }
   },
