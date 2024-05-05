@@ -305,7 +305,8 @@ module.exports = [
     url: 'https://app.dewu.com/**',
     getCacheUid: ({ headers: H, cookieObj: C }) => {
       const dutoken = C.duToken || H.dutoken || H.cookietoken;
-      if (dutoken) { //  && H.sk
+      if (dutoken) {
+        //  && H.sk
         const uid = dutoken.split('|')[1];
         if (uid) {
           return { uid, data: `${H['x-auth-token'].replace(/Bearer /, '')}#${dutoken}` };
@@ -323,5 +324,52 @@ module.exports = [
           ],
         };
     },
+  },
+  {
+    on: 'req-header',
+    ruleId: 'tpyzkj',
+    desc: '太平洋科技app签到',
+    url: 'https://pccoin.pconline.com.cn/*/*',
+    method: '*',
+    getCacheUid: ({ headers: H, cookieObj: C }) => {
+      if (!H.uid || !C.common_session_id) return;
+      return {
+        uid: H.uid,
+        data: `${H.uid}#${H.appsession}#${H.cookie}#${H.version}#${H['pc-agent']}#${H.channel}#${H['user-agent']}`,
+      };
+    },
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'bnmdhg',
+    desc: '巴奴毛肚火锅小程序签到',
+    url: 'https://cloud.banu.cn/api/member/*?member_id=*',
+    method: 'GET',
+    getCacheUid: ({ url, X }) => {
+      const query = X.FeUtils.getUrlParams('?' + url.split('?')[1]);
+      return {
+        uid: query.member_id,
+        data: query.member_id,
+      };
+    },
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'qfxhd', // 请求头的x-ds-key&返回报文体中的id
+    desc: '起飞线生活小程序',
+    url: 'https://cluster.qifeixian.com/api/user/v1/center/info',
+    getCacheUid: ({ resBody, headers }) => ({ uid: resBody?.data?.id, data: `${headers['x-ds-key']}&${resBody?.data?.id}` }),
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'wx_midea',
+    desc: '美的会员',
+    url: 'https://mvip.midea.cn/next/*/*',
+    method: 'GET',
+    getCacheUid: ({ cookieObj }) => cookieObj.uid,
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.headers.cookie).join('\n') } }),
   },
 ];

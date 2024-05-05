@@ -79,6 +79,16 @@ module.exports = [
     url: 'https://api-cn.decathlon.com.cn/**',
     method: '*',
     getCacheUid: () => 'default',
-    handler: ({ headers }) => headers.authorization && ({ envConfig: { value: headers.authorization } }),
-  }
+    handler: ({ headers }) => headers.authorization && { envConfig: { value: headers.authorization } },
+  },
+  {
+    // 开代理时云闪付签到页面进不去；可以先关闭代理进入签到页面，再开代理后，随意点击签到页面的任意链接
+    on: 'req-header',
+    ruleId: 'ysfqd_data',
+    desc: '云闪付签到-单账号',
+    url: 'https://youhui.95516.com/newsign/**',
+    method: '*',
+    getCacheUid: () => 'default',
+    handler: ({ headers }) => headers.authorization && { envConfig: { value: headers.authorization } },
+  },
 ];
