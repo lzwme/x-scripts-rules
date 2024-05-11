@@ -34,6 +34,7 @@ module.exports = [
       if (!cookieObj.pt_pin && !cookieObj.wskey) return;
       // console.log('handler-1', cookieObj.pt_pin, cookieObj.pin, this.mergeCache);
 
+      const sep = '\n';
       // 生成环境变量配置
       const envConfig = [
         {
@@ -42,28 +43,29 @@ module.exports = [
           value: allCacheData
             .filter(d => d.data.pt_pin)
             .map(d => X.cookieStringfiy(d.data, { onlyKeys: [/^pt_/] }) + ';')
-            .join('\n'),
+            .join(sep),
           desc: '京东 cookie',
+          sep,
         },
         {
           name: 'JD_WSCK',
           value: allCacheData
             .filter(d => d.data.wskey)
             .map(d => `pin=${d.data.pin};wspkey=${d.data.wskey}`)
-            .join('\n'),
+            .join(sep),
           desc: '京东 wskey',
+          sep,
         },
       ].filter(d => d.value);
 
       return { envConfig };
     },
     /** 更新处理已存在的环境变量，返回合并后的结果。若无需修改则可返回空 */
-    updateEnvValue({ value }, oldValue = '', X) {
-      const sep = oldValue.includes('&') ? '&' : '\n';
-      if (sep !== '\n') value = value.replaceAll('\n', sep);
+    updateEnvValue({ value, sep = '\n' }, oldValue = '', X) {
       oldValue.split(sep).forEach(cookie => {
+        if (!cookie) return;
         const pin = cookie.match(/pin=[^;]+/)?.[0];
-        if (pin && !value.includes(pin)) value += `${sep}${cookie}`;
+        if (!pin || !value.includes(pin)) value += `${sep}${cookie}`;
       });
       return value;
     },

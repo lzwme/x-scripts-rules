@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-19 19:23:02
  * @LastEditors: renxia
- * @LastEditTime: 2024-03-06 15:35:11
+ * @LastEditTime: 2024-05-08 15:22:01
  * @Description: https://github.com/leafTheFish/DeathNote
  */
 
@@ -16,12 +16,12 @@ module.exports = [
     url: 'https://*.meituan.com*',
     // url: 'https://msp.meituan.com/api/**',
     getCacheUid: ({ cookieObj }) => ({ uid: cookieObj.userId, data: `${cookieObj.token}#${cookieObj.uuid}` }),
-    handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => d.data).join('\n') } }),
+    handler: ({ cacheData }) => ({ envConfig: { value: cacheData.map(d => d.data).join('\n') } }),
   },
   {
     on: 'req-header',
     ruleId: 'TxStockCookie',
-    desc: '腾讯自选股',
+    desc: '腾讯自选股-单账号',
     tip: '先打开微信公众号，进福利中心，再打开APP，进个人中心',
     url: 'https://*.tenpay.com/cgi-bin/**',
     method: '*',
@@ -29,7 +29,12 @@ module.exports = [
     handler({ url, cookieObj, X }) {
       const obj = Object.assign(X.FeUtils.getUrlParams(url), cookieObj);
       const keys = ['openid', 'fskey', 'wzq_qlskey', 'wzq_qluin'];
-      keys.forEach(key => obj[key] && (this.data[key] = obj[key]));
+      keys.forEach(key => {
+        if (obj[key]) {
+          if (!this.data[key]) console.log(`【腾讯自选股】已获取${key}: ${obj[key]}`);
+          this.data[key] = obj[key];
+        }
+      });
       // console.log(obj, this.data);
       if (keys.every(key => this.data[key])) return { envConfig: { value: keys.map(key => `${key}=${this.data[key]}`).join('&') } };
     },
@@ -40,9 +45,7 @@ module.exports = [
     desc: '饿了么',
     url: 'https://*.ele.me/h5/**',
     getCacheUid: ({ cookieObj: ck }) => ({ uid: ck.user_id, data: `SID=${ck.SID};cookie2=${ck.cookie2};grabCoupon=1` }),
-    handler({ allCacheData }) {
-      return { envConfig: { value: allCacheData.map(d => d.data).join('\n') } };
-    }
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
   },
   {
     on: 'req-header',
@@ -54,8 +57,73 @@ module.exports = [
       const p = X.FeUtils.getUrlParams(url);
       return { uid: p.mobile, data: url };
     },
-    handler({ allCacheData: data }) {
-      return { envConfig: { value: data.map(d => d.data).join('\n') } };
-    }
-  }
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'xclxCookie',
+    desc: '携程旅行',
+    url: 'https://*m.ctrip.com/restapi/**',
+    getCacheUid({ cookieObj: C }) {
+      if (C.cticket) return { uid: C.login_uid, data: C.cticket };
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'tyqhCookie',
+    desc: '统一茄皇三期', // 微信小程序: 统一快乐星球 -> 活动 -> 统一茄皇三期，点进页面即可
+    url: 'https://*m.ctrip.com/restapi/**',
+    method: '*',
+    cache: {
+      tmp: {}, // 临时缓存，获取到 userId 后合并
+    },
+    getCacheUid({ reqBody, resBody }) {
+      if (reqBody?.thirdId && reqBody.wid) this.cache = reqBody;
+
+      if (resBody?.data?.userId && this.cache.thirdId) {
+        const D = this.cache;
+        this.cache = {};
+        return { uid: resBody.data.userId, data: `${D.thirdId}#${D.wid}#${resBody.data.userId}` };
+      }
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'bwcjCookie',
+    desc: '霸王茶姬小程序签到',
+    url: 'https://webapi.qmai.cn/web/seller/oauth/flash-sale-login',
+    method: 'post',
+    getCacheUid: ({ resBody }) => {
+      const uid = resBody?.data?.user?.id;
+      if (uid) return { uid, data: `${resBody.data.token}` }; // #${uid}
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'blackJSON',
+    desc: '全球购骑士特权签到',
+    url: 'https://{vip-member,pyp-api}.chuxingyouhui.com/{api,vip-member}/**',
+    method: 'get',
+    getCacheUid: ({ resBody, headers: H }) => {
+      const uid = resBody?.data?.userId || resBody?.data?.userPointsResp?.userId;
+      if (uid && H['black-token']) {
+        const data = { 'black-token': H['black-token'], token: H.token, 'User-Agent': H['user-agent'], userId: uid };
+        return { uid, data: JSON.stringify(data) };
+      }
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    updateEnvValue: /"userId":(\d+)/,
+  },
+  {
+    on: 'res-body',
+    ruleId: 'jlzx',
+    desc: '江铃智行小程序签到',
+    url: 'https://superapp.jmc.com.cn/jmc-zx-app-owner/v1/user/userCenter',
+    method: 'get',
+    getCacheUid: ({ resBody: B, headers: H }) => ({ uid: B?.data.nickName, data: H['access-token'] }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
 ];

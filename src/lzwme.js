@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-06 11:25:49
  * @LastEditors: renxia
- * @LastEditTime: 2024-04-02 14:00:16
+ * @LastEditTime: 2024-05-09 11:00:24
  * @Description:
  */
 /** @type {import('@lzwme/whistle.x-scripts').RuleItem[]} */
@@ -18,8 +18,8 @@ module.exports = [
       // console.log('reqBody', reqBody);
       return { uid: reqBody?.encryptsessionid && resBody?.result?.vipcode, data: { reqBody, uid: resBody?.data?.uid } };
     },
-    handler({ allCacheData }) {
-      const value = allCacheData.map(({ data: d }) => `${d.reqBody.encryptsessionid}##${d.uid}`).join('\n');
+    handler({ cacheData }) {
+      const value = cacheData.map(({ data: d }) => `${d.reqBody.encryptsessionid}##${d.uid}`).join('\n');
       if (value) return { envConfig: [{ name: this.ruleId, value }] };
     },
   },
@@ -36,8 +36,8 @@ module.exports = [
       };
       return data;
     },
-    handler({ allCacheData }) {
-      const value = allCacheData.filter(d => d.data).map(d => `${d.data}##${d.uid}`);
+    handler({ cacheData }) {
+      const value = cacheData.filter(d => d.data).map(d => `${d.data}##${d.uid}`);
       return { envConfig: { value: value.join('\n') } };
     },
   },
@@ -47,7 +47,7 @@ module.exports = [
     desc: '阿里云盘',
     url: 'https://auth.alipan.com/v2/account/token',
     getCacheUid: ({ resBody }) => ({ uid: resBody?.user_id, data: resBody?.refresh_token }),
-    handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => `${d.data}##${d.uid}`).join('\n') } }),
+    handler: ({ cacheData }) => ({ envConfig: { value: cacheData.map(d => `${d.data}##${d.uid}`).join('\n') } }),
   },
   {
     on: 'req-header',
@@ -56,7 +56,7 @@ module.exports = [
     url: 'https://*.iqiyi.com/*/api/**',
     method: '*',
     getCacheUid: ({ cookieObj: ck }) => ({ uid: ck.P00003, data: `P00003=${ck.P00003};P00001=${ck.P00001}` }),
-    handler: ({ allCacheData }) => ({ envConfig: { value: allCacheData.map(d => `${d.data}`).join('\n') } }),
+    handler: ({ cacheData }) => ({ envConfig: { value: cacheData.map(d => `${d.data}`).join('\n') } }),
     updateEnvValue: /P00003=[^;]+/,
   },
   {
@@ -69,10 +69,11 @@ module.exports = [
       const uid = resBody?.context?.currentUser.id;
       if (uid) return { uid, data: `${headers.cookie.replace(/ XD=[^;]+;/, '')}##${uid}` };
     },
-    handler: ({ allCacheData: d }) => ({ envConfig: { value: d.map(d => `${d.data}`).join('\n') } }),
+    handler: ({ cacheData: d }) => ({ envConfig: { value: d.map(d => `${d.data}`).join('\n') } }),
     updateEnvValue: /##\d+/,
   },
   {
+    disabled: true, // 脚本已废弃
     on: 'req-header',
     ruleId: 'dkl_token',
     desc: '迪卡侬签到-单账号',
@@ -90,5 +91,15 @@ module.exports = [
     method: '*',
     getCacheUid: () => 'default',
     handler: ({ headers }) => headers.authorization && { envConfig: { value: headers.authorization } },
+  },
+  {
+    on: 'req-header',
+    ruleId: 'ths_cookie',
+    desc: '同花顺签到',
+    url: 'https://eq.10jqka.com.cn/**',
+    method: 'get',
+    // getCacheUid: ({ cookieObj: C }) => C.userid,
+    getCacheUid: ({ cookieObj: C }) => ({uid: C.userid, data: `ticket=${C.ticket}; userid=${C.userid}; user=${C.user}`}),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.data || d.headers.cookie}`).join('\n') } }),
   },
 ];
