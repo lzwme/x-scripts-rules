@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-19 19:23:02
  * @LastEditors: renxia
- * @LastEditTime: 2024-05-08 15:22:01
+ * @LastEditTime: 2024-05-23 09:21:41
  * @Description: https://github.com/leafTheFish/DeathNote
  */
 
@@ -15,7 +15,7 @@ module.exports = [
     method: 'POST',
     url: 'https://*.meituan.com*',
     // url: 'https://msp.meituan.com/api/**',
-    getCacheUid: ({ cookieObj }) => ({ uid: cookieObj.userId, data: `${cookieObj.token}#${cookieObj.uuid}` }),
+    getCacheUid: ({ cookieObj }) => ({ uid: cookieObj.userId || '_', data: `${cookieObj.token}#${cookieObj.uuid}` }),
     handler: ({ cacheData }) => ({ envConfig: { value: cacheData.map(d => d.data).join('\n') } }),
   },
   {
@@ -73,7 +73,7 @@ module.exports = [
     on: 'res-body',
     ruleId: 'tyqhCookie',
     desc: '统一茄皇三期', // 微信小程序: 统一快乐星球 -> 活动 -> 统一茄皇三期，点进页面即可
-    url: 'https://*m.ctrip.com/restapi/**',
+    url: 'https://qiehuang-apig.xiaoyisz.com/qiehuangsecond/ga/**',
     method: '*',
     cache: {
       tmp: {}, // 临时缓存，获取到 userId 后合并
@@ -88,6 +88,7 @@ module.exports = [
       }
     },
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    updateEnvValue: /#(\d+)$/,
   },
   {
     on: 'res-body',
@@ -125,5 +126,48 @@ module.exports = [
     method: 'get',
     getCacheUid: ({ resBody: B, headers: H }) => ({ uid: B?.data.nickName, data: H['access-token'] }),
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'paopaomate',
+    desc: '微信小程序泡泡玛特',
+    method: 'get',
+    url: 'https://popvip.paquapp.com/miniapp/v2/wechat/getUserInfo/?user_id=*',
+    getCacheUid({ url, X, headers }) {
+      const p = X.FeUtils.getUrlParams(url);
+      const uid = p.user_id;
+      const openid = headers.identity_code || p.openid;
+      if (uid && openid) return { uid, data: `${uid}#${openid}` };
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'hqcsh',
+    desc: '好汽车生活-微信小程序',
+    method: '*',
+    url: 'https://channel.cheryfs.cn/archer/activity-api/**',
+    getCacheUid: ({ headers }) => headers.accountid,
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.uid).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'fenxiang',
+    desc: '粉象生活App',
+    url: 'https://*api.fenxianglife.com/**',
+    getCacheUid: ({ headers: H }) => ({ uid: H.finger, data: `${H.did}#${H.finger}#${H.token}#${H.oaid || ''}` }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'lenovoAccessToken',
+    desc: '联想App',
+    url: 'https://mmembership.lenovo.com.cn/member*/**',
+    getCacheUid: ({ headers: H, url }) => {
+      // console.log(H.lenovoid, url, H.accesstoken);
+      return { uid: H.lenovoid, data: `${H.accesstoken}#${H.lenovoid}` };
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    updateEnvValue: /#(\d+)$/i,
   },
 ];

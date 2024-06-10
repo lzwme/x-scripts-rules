@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-22 19:46:56
  * @LastEditors: renxia
- * @LastEditTime: 2024-03-05 11:16:12
+ * @LastEditTime: 2024-05-20 10:18:29
  * @Description:
  */
 
@@ -15,7 +15,7 @@ module.exports = [
     desc: '阿里云盘解锁vip',
     method: '*',
     mitm: '(api|member).alipan.com',
-    url: /^https:\/\/(api|member)\.alipan\.com\/(adrive|v1|v2|business|databox)\/.+\/(me|vip|feature|info|get_personal_info|driveCapacityDetails|getUserCapacityInfo)/,
+    url: /^https:\/\/(api|member)\.(alipan|aliyundrive)\.com\/(adrive|v1|v2|business|databox)\/.+\/(me|vip|feature|info|get_personal_info|driveCapacityDetails|getUserCapacityInfo)/,
     handler({ resBody, url, X }) {
       if (typeof resBody === 'object') {
         const color = X.FeUtils.color;
@@ -60,9 +60,9 @@ module.exports = [
         } else if (modified.drive_capacity_details) {
           console.log('修改容量管理详情', url);
 
-          // modified.capacity_level_info = {
-          //   capacity_type: 'svip',
-          // };
+          modified.capacity_level_info = {
+            capacity_type: 'svip',
+          };
           modified.drive_capacity_details.drive_total_size = 43980465111040; // 40Tb
         } else if (modified.drive_total_size && modified.default_drive_used_size) {
           // body5
@@ -84,12 +84,13 @@ module.exports = [
               icon: 'https://gw.alicdn.com/imgextra/i3/O1CN01iPKCuZ1urjDgiry5c_!!6000000006091-2-tps-60-60.png',
               mediumIcon: 'https://gw.alicdn.com/imgextra/i4/O1CN01Mk916Y1c99aVBrgxM_!!6000000003557-2-tps-222-60.png',
               status: 'normal',
+              vipCode: 'svip.8t',
             };
             modified.vipList[0] = {
               name: '8TB超级会员',
               code: 'svip.8t',
               promotedAt: 1675599847,
-              expire: 1806600189,
+              expire: 1906600189,
             };
           }
         }

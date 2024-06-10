@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-06 11:25:49
  * @LastEditors: renxia
- * @LastEditTime: 2024-05-09 11:00:24
+ * @LastEditTime: 2024-05-30 16:18:14
  * @Description:
  */
 /** @type {import('@lzwme/whistle.x-scripts').RuleItem[]} */
@@ -16,12 +16,17 @@ module.exports = [
     url: 'https://wx-fulishe.msx.digitalyili.com/brandwxa/api/vip/getinfo*',
     getCacheUid: ({ reqBody, resBody }) => {
       // console.log('reqBody', reqBody);
-      return { uid: reqBody?.encryptsessionid && resBody?.result?.vipcode, data: { reqBody, uid: resBody?.data?.uid } };
+      const uid = resBody?.data?.uid || (reqBody?.encryptsessionid ? resBody?.result?.vipcode : '');
+      if (uid) return { uid, data: `${reqBody.encryptsessionid}##${uid}` };
     },
-    handler({ cacheData }) {
-      const value = cacheData.map(({ data: d }) => `${d.reqBody.encryptsessionid}##${d.uid}`).join('\n');
-      if (value) return { envConfig: [{ name: this.ruleId, value }] };
-    },
+    handler: ({ cacheData }) => ({
+      envConfig: {
+        value: cacheData
+          .filter(d => typeof d.data === 'string')
+          .map(d => `${d.data}`)
+          .join('\n'),
+      },
+    }),
   },
   {
     on: 'res-body',
@@ -99,7 +104,21 @@ module.exports = [
     url: 'https://eq.10jqka.com.cn/**',
     method: 'get',
     // getCacheUid: ({ cookieObj: C }) => C.userid,
-    getCacheUid: ({ cookieObj: C }) => ({uid: C.userid, data: `ticket=${C.ticket}; userid=${C.userid}; user=${C.user}`}),
+    getCacheUid: ({ cookieObj: C }) => ({ uid: C.userid, data: `ticket=${C.ticket}; userid=${C.userid}; user=${C.user}` }),
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.data || d.headers.cookie}`).join('\n') } }),
+  },
+  {
+    on: 'req-header',
+    ruleId: 'JJCookie',
+    desc: '掘金签到',
+    url: 'https://api.juejin.cn/user_api/v1/user/get**',
+    method: 'get',
+    // getCacheUid: ({ cookieObj: C }) => C.userid,
+    getCacheUid({ url, headers, X }) {
+      const uid = X.FeUtils.getUrlParams(url.split('?')[1] || '').uuid;
+      // X.FeUtils.cookieStringfiy(C, { onlyKeys: [] });
+      if (uid && headers.cookie) return { uid };
+    },
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.cookie}##${d.uid}`).join('\n') } }),
   },
 ];

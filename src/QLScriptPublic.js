@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-01-24 08:54:08
  * @LastEditors: renxia
- * @LastEditTime: 2024-04-02 14:24:22
+ * @LastEditTime: 2024-05-21 13:26:38
  * @Description:
  */
 
@@ -54,7 +54,7 @@ module.exports = [
     url: 'https://msmarket.msx.digitalyili.com/gateway/api/auth/account/user/info',
     getCacheUid: ({ resBody }) => resBody?.data?.userId,
     handler({ allCacheData }) {
-      const value = allCacheData.map(d => d.headers['access-token']).join('&');
+      const value = allCacheData.map(d => d.headers['access-token']).join('\n');
       if (value) return { envConfig: { name: this.ruleId, value } };
     },
   },
@@ -278,10 +278,10 @@ module.exports = [
     ruleId: 'yuepaiToken',
     desc: '悦拜APP_小程序/app',
     method: 'POST',
-    url: 'https://app.yuebuy.cn/api/user/UserCenter',
+    url: 'https://app.yuebuy.cn/api/user/{UserCenter,getUserInfo}',
     getCacheUid: ({ headers, resBody, url }) => {
-      const uid = resBody?.data?.user?.id;
-      if (uid) return { uid, data: `${resBody.data.user.token || headers['x-auth-token']}##${uid}` };
+      const uid = resBody?.data?.id || resBody?.data?.user?.id;
+      if (uid) return { uid, data: `${ resBody.data.token || resBody.data.user?.token || headers['x-auth-token']}##${uid}` };
     },
     handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
   },

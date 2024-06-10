@@ -62,6 +62,8 @@ module.exports = [
     },
     /** 更新处理已存在的环境变量，返回合并后的结果。若无需修改则可返回空 */
     updateEnvValue({ value, sep = '\n' }, oldValue = '', X) {
+      if (!oldValue) console.trace('[JD][OLDVALUE为空!]', value, oldValue);
+
       oldValue.split(sep).forEach(cookie => {
         if (!cookie) return;
         const pin = cookie.match(/pin=[^;]+/)?.[0];
