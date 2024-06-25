@@ -51,7 +51,7 @@ module.exports = [
           name: 'JD_WSCK',
           value: allCacheData
             .filter(d => d.data.wskey)
-            .map(d => `pin=${d.data.pin};wspkey=${d.data.wskey}`)
+            .map(d => `pin=${encodeURIComponent(d.data.pin)};wspkey=${d.data.wskey}`)
             .join(sep),
           desc: '京东 wskey',
           sep,
@@ -76,7 +76,7 @@ module.exports = [
     desc: '签到有礼超级无线-七天签到LZKJ_SEVENDAY',
     ruleId: 'LZKJ_SEVENDAY',
     method: 'get',
-    url: 'https://lzkj-isv.isvjcloud.com/sign/sevenDay/signActivity?activityId=',
+    url: 'https://lzkj-isv.isvjcloud.com/sign/sevenDay/signActivity?activityId=*',
     getCacheUid: ({ url }) => new URL(url).searchParams.get('activityId'),
     handler({ allCacheData }) {
       return { envConfig: { value: allCacheData.map(d => d.uid).join(','), name: 'LZKJ_SEVENDAY' } };
@@ -86,14 +86,14 @@ module.exports = [
     desc: '签到有礼超级无线-CJHY_SEVENDAY',
     ruleId: 'CJHY_SEVENDAY',
     method: 'get',
-    url: 'https://cjhy-isv.isvjcloud.com/sign/sevenDay/signActivity?activityId=',
+    url: 'https://cjhy-isv.isvjcloud.com/sign/sevenDay/signActivity?activityId=*',
     getCacheUid: ({ url }) => new URL(url).searchParams.get('activityId'),
     handler: ({ allCacheData: A }) => ({ value: A.map(d => d.uid).join(','), name: 'CJHY_SEVENDAY' }), // 可以直接返回 envConfig
   },
   {
     desc: 'lzkj签到有礼-activityId',
     ruleId: 'jd_lzkj_signActivity2_ids',
-    url: 'https://lzkj-isv.isvjcloud.com/sign/signActivity2?activityId=',
+    url: 'https://lzkj-isv.isvjcloud.com/sign/signActivity2?activityId=*',
     getCacheUid: ({ url }) => new URL(url).searchParams.get('activityId'),
     handler({ allCacheData }) {
       return [

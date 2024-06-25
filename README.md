@@ -5,7 +5,7 @@
 [![GitHub issues][issues-badge]][issues-url]
 [![GitHub forks][forks-badge]][forks-url]
 [![GitHub stars][stars-badge]][stars-url]
-![license MIT](https://img.shields.io/github/license/lzwme/whistle.x-scripts)
+
 <!-- [![minzipped size][bundlephobia-badge]][bundlephobia-url] -->
 
 基于 [@lzwme/whistle.x-scripts](https://github.com/lzwme/whistle.x-scripts) 插件规范开发的规则脚本库。
@@ -70,12 +70,12 @@ w2 run
 该插件由[志文工作室](https://lzw.me)开发和维护。
 
 
-[stars-badge]: https://img.shields.io/github/stars/lzwme/whistle.x-scripts.svg
-[stars-url]: https://github.com/lzwme/whistle.x-scripts/stargazers
-[forks-badge]: https://img.shields.io/github/forks/lzwme/whistle.x-scripts.svg
-[forks-url]: https://github.com/lzwme/whistle.x-scripts/network
-[issues-badge]: https://img.shields.io/github/issues/lzwme/whistle.x-scripts.svg
-[issues-url]: https://github.com/lzwme/whistle.x-scripts/issues
+[stars-badge]: https://img.shields.io/github/stars/lzwme/x-scripts-rules.svg
+[stars-url]: https://github.com/lzwme/x-scripts-rules/stargazers
+[forks-badge]: https://img.shields.io/github/forks/lzwme/x-scripts-rules.svg
+[forks-url]: https://github.com/lzwme/x-scripts-rules/network
+[issues-badge]: https://img.shields.io/github/issues/lzwme/x-scripts-rules.svg
+[issues-url]: https://github.com/lzwme/x-scripts-rules/issues
 [npm-badge]: https://img.shields.io/npm/v/@lzwme/x-scripts-rules.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@lzwme/x-scripts-rules
 [node-badge]: https://img.shields.io/badge/node.js-%3E=_16.15.0-green.svg?style=flat-square
