@@ -1,6 +1,9 @@
 // @ts-check
-/** 最近一次的 pin 账号，用于标记 wskey */
-let pre_pt_pin = '';
+const cache = {
+  uid: '',
+  wskey: '',
+};
+
 /**
  * 京东 cookie 自动获取上传至青龙面板
  * WAP登录： https://bean.m.jd.com/bean/signIndex.action
@@ -20,27 +23,32 @@ module.exports = [
     toEnvFile: true,
     mergeCache: true,
     /** 获取当前用户唯一性的 uid */
-    getCacheUid({ cookieObj }) {
-      let uid = cookieObj.pt_pin || cookieObj.pin;
-      if (!uid && cookieObj.wskey && pre_pt_pin) cookieObj.pin = uid = pre_pt_pin;
+    getCacheUid({ cookieObj, url }) {
+      if (cookieObj.wskey) {
+        cache.wskey = cookieObj.wskey;
+        console.log('wskey', cache);
+      }
+
+      const uid = cookieObj.pt_pin || cookieObj.pin;
 
       if (uid && !uid.startsWith('netdiag') && !uid.startsWith('***')) {
-        pre_pt_pin = uid;
+        if (cache.uid && cache.uid !== uid) cache.wskey = '';
+        cache.uid = uid;
+        if (cache.wskey) cookieObj.wskey = cache.wskey;
+
         return { uid, data: cookieObj };
       }
     },
     /** 规则处理并返回环境变量配置。可以数组的形式返回多个 */
-    handler({ allCacheData, cookieObj, X }) {
-      if (!cookieObj.pt_pin && !cookieObj.wskey) return;
+    handler({ cacheData, cookieObj, X }) {
       // console.log('handler-1', cookieObj.pt_pin, cookieObj.pin, this.mergeCache);
 
-      const sep = '\n';
+      const sep = '&';
       // 生成环境变量配置
       const envConfig = [
         {
           name: 'JD_COOKIE',
-          // value: allCacheData.filter(d => d.data.pt_pin).map(d => d.headers.cookie).join('&'),
-          value: allCacheData
+          value: cacheData
             .filter(d => d.data.pt_pin)
             .map(d => X.cookieStringfiy(d.data, { onlyKeys: [/^pt_/] }) + ';')
             .join(sep),
@@ -49,9 +57,9 @@ module.exports = [
         },
         {
           name: 'JD_WSCK',
-          value: allCacheData
+          value: cacheData
             .filter(d => d.data.wskey)
-            .map(d => `pin=${encodeURIComponent(d.data.pin)};wspkey=${d.data.wskey}`)
+            .map(d => `pin=${encodeURIComponent(d.uid)};wskey=${d.data.wskey}`)
             .join(sep),
           desc: '京东 wskey',
           sep,
@@ -78,8 +86,8 @@ module.exports = [
     method: 'get',
     url: 'https://lzkj-isv.isvjcloud.com/sign/sevenDay/signActivity?activityId=*',
     getCacheUid: ({ url }) => new URL(url).searchParams.get('activityId'),
-    handler({ allCacheData }) {
-      return { envConfig: { value: allCacheData.map(d => d.uid).join(','), name: 'LZKJ_SEVENDAY' } };
+    handler({ cacheData }) {
+      return { envConfig: { value: cacheData.map(d => d.uid).join(','), name: 'LZKJ_SEVENDAY' } };
     },
   },
   {
@@ -88,17 +96,17 @@ module.exports = [
     method: 'get',
     url: 'https://cjhy-isv.isvjcloud.com/sign/sevenDay/signActivity?activityId=*',
     getCacheUid: ({ url }) => new URL(url).searchParams.get('activityId'),
-    handler: ({ allCacheData: A }) => ({ value: A.map(d => d.uid).join(','), name: 'CJHY_SEVENDAY' }), // 可以直接返回 envConfig
+    handler: ({ cacheData: A }) => ({ value: A.map(d => d.uid).join(','), name: 'CJHY_SEVENDAY' }), // 可以直接返回 envConfig
   },
   {
     desc: 'lzkj签到有礼-activityId',
     ruleId: 'jd_lzkj_signActivity2_ids',
     url: 'https://lzkj-isv.isvjcloud.com/sign/signActivity2?activityId=*',
     getCacheUid: ({ url }) => new URL(url).searchParams.get('activityId'),
-    handler({ allCacheData }) {
+    handler({ cacheData }) {
       return [
-        { value: allCacheData.map(d => d.uid).join('&'), name: 'jd_lzkj_signActivity2_ids', desc: 'lzkj签到有礼' },
-        { value: allCacheData.map(d => d.uid).join(','), name: 'LZKJ_SIGN', desc: '签到有礼超级无线-LZKJ_SIGN' },
+        { value: cacheData.map(d => d.uid).join('&'), name: 'jd_lzkj_signActivity2_ids', desc: 'lzkj签到有礼' },
+        { value: cacheData.map(d => d.uid).join(','), name: 'LZKJ_SIGN', desc: '签到有礼超级无线-LZKJ_SIGN' },
       ];
     },
   },
@@ -110,10 +118,10 @@ module.exports = [
     getCacheUid: ({ headers }) => {
       if (headers.referer) return new URL(headers.referer).searchParams.get('activityId');
     },
-    handler({ allCacheData }) {
+    handler({ cacheData }) {
       return [
-        { value: allCacheData.map(d => d.uid).join('&'), name: 'jd_cjhy_signActivity_ids', desc: 'cjhy签到有礼' },
-        { value: allCacheData.map(d => d.uid).join(','), name: 'CJHY_SIGN', desc: '签到有礼超级无线-CJHY_SIGN' },
+        { value: cacheData.map(d => d.uid).join('&'), name: 'jd_cjhy_signActivity_ids', desc: 'cjhy签到有礼' },
+        { value: cacheData.map(d => d.uid).join(','), name: 'CJHY_SIGN', desc: '签到有礼超级无线-CJHY_SIGN' },
       ];
     },
   },
