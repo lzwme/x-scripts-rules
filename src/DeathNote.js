@@ -57,7 +57,16 @@ module.exports = [
       const p = X.FeUtils.getUrlParams(url);
       return { uid: p.mobile, data: url };
     },
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+
+    handler: ({ cacheData: D }) => {
+      const value = D.map(d => d.data).join('\n');
+      return {
+        envConfig: [
+          { value, ruleId: 'SFSY' },
+          { value, ruleId: 'sfsyUrl' },
+        ],
+      };
+    },
   },
   {
     on: 'req-header',

@@ -10,6 +10,6 @@ module.exports = [
     url: 'https://thbank.tianhongjijin.com.cn/api/hy/signArea/*',
     method: '*',
     getCacheUid: ({ cookieObj: C }) => C.current_user,
-    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.cookie}##${d.uid}`).join('\n') } }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.cookie}##${d.uid}`).join('\n') } }),
   },
 ];

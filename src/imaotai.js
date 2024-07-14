@@ -50,5 +50,5 @@ module.exports = {
 
     return { envConfig: { name: 'QL_IMAOTAI', value, desc: 'imaotai cookie' } };
   },
-  updateEnvValue: /userId=[^;]+/,
+  updateEnvValue: /userId=([^;]+)/,
 };

@@ -75,7 +75,7 @@ module.exports = [
       if (uid) return { uid, data: `${headers.cookie.replace(/ XD=[^;]+;/, '')}##${uid}` };
     },
     handler: ({ cacheData: d }) => ({ envConfig: { value: d.map(d => `${d.data}`).join('\n') } }),
-    updateEnvValue: /##\d+/,
+    updateEnvValue: /##(\d+)/,
   },
   {
     disabled: true, // 脚本已废弃
@@ -119,6 +119,15 @@ module.exports = [
       // X.FeUtils.cookieStringfiy(C, { onlyKeys: [] });
       if (uid && headers.cookie) return { uid };
     },
-    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.cookie}##${d.uid}`).join('\n') } }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.cookie}##${d.uid}`).join('\n') } }),
+  },
+  {
+    ruleId: 'gujing',
+    desc: '古井贡酒会员中心小程序',
+    method: 'post',
+    url: 'https://scrm.gujing.com/gujing_scrm/wxclient/login/info',
+    on: 'req-body',
+    getCacheUid: ({ reqBody: R }) => R?.memberId,
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers['access-token']}##${d.uid}`).join('\n') } }),
   },
 ];
