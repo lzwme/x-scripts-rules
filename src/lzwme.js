@@ -130,4 +130,20 @@ module.exports = [
     getCacheUid: ({ reqBody: R }) => R?.memberId,
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers['access-token']}##${d.uid}`).join('\n') } }),
   },
+  {
+    ruleId: 'WS_JWCN_SIGN',
+    desc: '奇奥超市签到',
+    method: 'get',
+    url: 'https://ws.jwcn.net/weixinpl/card/card_sign.php?card_member_id=*',
+    on: 'req-header',
+    getCacheUid({ url, cookieObj: C }) {
+      const query = X.FeUtils.getUrlParams(url.split('?')[1] || '');
+      return {
+        uid: query.card_member_id,
+        data: `card_member_id=${query.card_member_id};card_id=${query.card_id};PHPSESSID=${C.PHPSESSID}`,
+      };
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    updateEnvValue: /card_member_id=[^;]+/,
+  },
 ];
