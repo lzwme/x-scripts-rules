@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-02-19 19:23:02
  * @LastEditors: renxia
- * @LastEditTime: 2024-05-23 09:21:41
+ * @LastEditTime: 2024-07-25 22:36:03
  * @Description: https://github.com/leafTheFish/DeathNote
  */
 
@@ -153,7 +153,7 @@ module.exports = [
   {
     on: 'req-header',
     ruleId: 'hqcsh',
-    desc: '好汽车生活-微信小程序',
+    desc: '好奇车生活-微信小程序',
     method: '*',
     url: 'https://channel.cheryfs.cn/archer/activity-api/**',
     getCacheUid: ({ headers }) => headers.accountid,
