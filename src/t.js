@@ -39,12 +39,14 @@ module.exports = [
     url: 'https://xcx.this.cn/api/user',
     method: 'get',
     getCacheUid: ({ resBody: R }) => ({ uid: R?.data?.uid }),
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers['authori-zation'].replace('Bearer ', '')}`).join('\n'), sep: '\n' } }),
+    handler: ({ cacheData: D }) => ({
+      envConfig: { value: D.map(d => `${d.headers['authori-zation'].replace('Bearer ', '')}`).join('\n'), sep: '\n' },
+    }),
   },
   {
     on: 'req-body',
     ruleId: 'JDD',
-    desc: '金杜丹-小程序签到',
+    desc: '金杜丹-小程序签到-单账号',
     url: 'https://tianxin.jmd724.com/**',
     method: 'get',
     getCacheUid: ({ url, X }) => {
@@ -52,6 +54,25 @@ module.exports = [
       if (query.access_token) return { uid: '_', data: query.access_token };
     },
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('@'), sep: '@' } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'dqdd',
+    desc: 'DQ点单-小程序签到-单账号',
+    url: 'https://wechat.dairyqueen.com.cn/**',
+    method: 'post',
+    getCacheUid: ({ resBody: R }) => '_', // ({ uid: R?.data?.uid }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.headers.cookie).join('\n'), sep: '\n' } }),
+  },
+  {
+    on: 'res-body',
+    ruleId: 'LBDQ',
+    desc: '老板电器服务微商城-小程序签到',
+    url: 'https://vip.foxech.com/index.php/api/member/get_member_info',
+    method: 'post',
+    getCacheUid: ({ reqBody: Q, resBody: R }) => ({ uid: R?.data?.info?.nickname, data: `${Q.openid}@UID_${R?.data?.info?.nickname}` }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    updateEnvValue: /@([\da-z]+)/i,
   },
 ];
 

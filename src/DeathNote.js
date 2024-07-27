@@ -103,7 +103,7 @@ module.exports = [
     on: 'res-body',
     ruleId: 'bwcjCookie',
     desc: '霸王茶姬小程序签到',
-    url: 'https://webapi.qmai.cn/web/seller/oauth/flash-sale-login',
+    url: 'https://webapi*.qmai.cn/web/seller/oauth/flash-sale-login',
     method: 'post',
     getCacheUid: ({ resBody }) => {
       const uid = resBody?.data?.user?.id;

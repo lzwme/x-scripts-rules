@@ -66,7 +66,7 @@ module.exports = [
     desc: '雅迪星球-小程序',
     url: 'https://planet-api.op.yadea.com.cn/user-api/app/user/getUsertoken',
     method: 'post',
-    getCacheUid: ({ resBody: R }) => ({ uid: R?.object?.userinfo?.userid }),
+    getCacheUid: ({ resBody: R, headers }) => headers.authorization && { uid: R?.object?.userinfo?.userid },
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.authorization}&${d.uid}`).join('\n') } }),
     updateEnvValue: /&([\d\*]+)/,
   },
