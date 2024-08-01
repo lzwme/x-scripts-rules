@@ -6,6 +6,7 @@
  * @Description:
  */
 module.exports = [
+  ...require('./features'),
   // ...require('./vip'),
   // ...require('./jd'),
   // ...require('./QLScriptPublic'),
