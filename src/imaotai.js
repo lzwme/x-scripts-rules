@@ -24,7 +24,7 @@ module.exports = {
   mergeCache: true,
   /** 获取当前用户唯一性的 uuid */
   getCacheUid: ({ headers, cookieObj, resBody }) => {
-    if (resBody?.data?.userId) cache.userId = resBody.data.userId;
+    if (/^\d+$/.test(resBody?.data?.userId)) cache.userId = resBody.data.userId;
     if (!cache.userId) return;
 
     const deviceId = headers['mt-device-id'] || cookieObj['MT-Device-ID-Wap'];

@@ -19,7 +19,7 @@ module.exports = [
     url: 'https://api.hzyxhfp.com/api/userRight/getUserRightDetail',
     method: 'post',
     getCacheUid: ({ resBody: R }) => ({ uid: R?.data?.phone }),
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.authorization.replace('Bearer ', '')}`).join('\n') } }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.filter(d => d.headers.authorization).map(d => `${d.headers.authorization.replace('Bearer ', '')}`).join('\n') } }),
     // updateEnvValue: /&([\d\*]+)/,
   },
   {
@@ -38,7 +38,7 @@ module.exports = [
     desc: 'this官方商城-小程序签到',
     url: 'https://xcx.this.cn/api/user',
     method: 'get',
-    getCacheUid: ({ resBody: R }) => ({ uid: R?.data?.uid }),
+    getCacheUid: ({ resBody: R, headers }) => headers['authori-zation'] && ({ uid: R?.data?.uid }),
     handler: ({ cacheData: D }) => ({
       envConfig: { value: D.map(d => `${d.headers['authori-zation'].replace('Bearer ', '')}`).join('\n'), sep: '\n' },
     }),
@@ -70,7 +70,7 @@ module.exports = [
     desc: '老板电器服务微商城-小程序签到',
     url: 'https://vip.foxech.com/index.php/api/member/get_member_info',
     method: 'post',
-    getCacheUid: ({ reqBody: Q, resBody: R }) => ({ uid: R?.data?.info?.nickname, data: `${Q.openid}@UID_${R?.data?.info?.nickname}` }),
+    getCacheUid: ({ reqBody: Q, resBody: R }) => Q.openid && ({ uid: R?.data?.info?.nickname, data: `${Q.openid}@UID_${R?.data?.info?.nickname}` }),
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
     updateEnvValue: /@([\da-z]+)/i,
   },

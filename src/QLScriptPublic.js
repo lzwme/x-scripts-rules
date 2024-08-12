@@ -2,7 +2,7 @@
  * @Author: renxia
  * @Date: 2024-01-24 08:54:08
  * @LastEditors: renxia
- * @LastEditTime: 2024-05-21 13:26:38
+ * @LastEditTime: 2024-08-09 09:08:31
  * @Description:
  */
 
@@ -93,7 +93,7 @@ module.exports = [
     url: 'https://vip.ixiliu.cn/mp/user/info',
     getCacheUid: ({ resBody, headers }) => {
       const uid = resBody?.data?.userInfo?.user_id;
-      if (uid) return { uid, data: `${headers['access-token']}` };
+      if (uid) return { uid, data: `${headers['access-token']}##${uid}` };
     },
     handler({ allCacheData: D }) {
       return { envConfig: { value: D.map(d => d.data).join('\n') } };

@@ -42,27 +42,25 @@ module.exports = [
     /** 规则处理并返回环境变量配置。可以数组的形式返回多个 */
     handler({ cacheData, cookieObj, X }) {
       // console.log('handler-1', cookieObj.pt_pin, cookieObj.pin, this.mergeCache);
-
-      const sep = '&';
       // 生成环境变量配置
       const envConfig = [
         {
           name: 'JD_COOKIE',
           value: cacheData
             .filter(d => d.data.pt_pin)
-            .map(d => X.cookieStringfiy(d.data, { onlyKeys: [/^pt_/] }) + ';')
-            .join(sep),
+            .map(d => X.cookieStringfiy(d.data, { onlyKeys: ['pt_pin', 'pt_key'] }) + ';')
+            .join('\n'),
           desc: '京东 cookie',
-          sep,
+          sep: '\n',
         },
         {
           name: 'JD_WSCK',
           value: cacheData
             .filter(d => d.data.wskey)
             .map(d => `pin=${encodeURIComponent(d.uid)};wskey=${d.data.wskey}`)
-            .join(sep),
+            .join('&'),
           desc: '京东 wskey',
-          sep,
+          sep: '&',
         },
       ].filter(d => d.value);
 
