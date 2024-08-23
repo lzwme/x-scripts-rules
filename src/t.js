@@ -6,6 +6,7 @@ module.exports = [
   {
     on: 'req-header',
     ruleId: 'CITIC_COOKIE',
+    disabled: true,
     desc: '中信银行签到',
     url: 'https://thbank.tianhongjijin.com.cn/api/hy/signArea/*',
     method: '*',
@@ -19,7 +20,13 @@ module.exports = [
     url: 'https://api.hzyxhfp.com/api/userRight/getUserRightDetail',
     method: 'post',
     getCacheUid: ({ resBody: R }) => ({ uid: R?.data?.phone }),
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.filter(d => d.headers.authorization).map(d => `${d.headers.authorization.replace('Bearer ', '')}`).join('\n') } }),
+    handler: ({ cacheData: D }) => ({
+      envConfig: {
+        value: D.filter(d => d.headers.authorization)
+          .map(d => `${d.headers.authorization.replace('Bearer ', '')}`)
+          .join('\n'),
+      },
+    }),
     // updateEnvValue: /&([\d\*]+)/,
   },
   {
@@ -38,7 +45,7 @@ module.exports = [
     desc: 'this官方商城-小程序签到',
     url: 'https://xcx.this.cn/api/user',
     method: 'get',
-    getCacheUid: ({ resBody: R, headers }) => headers['authori-zation'] && ({ uid: R?.data?.uid }),
+    getCacheUid: ({ resBody: R, headers }) => headers['authori-zation'] && { uid: R?.data?.uid },
     handler: ({ cacheData: D }) => ({
       envConfig: { value: D.map(d => `${d.headers['authori-zation'].replace('Bearer ', '')}`).join('\n'), sep: '\n' },
     }),
@@ -70,9 +77,54 @@ module.exports = [
     desc: '老板电器服务微商城-小程序签到',
     url: 'https://vip.foxech.com/index.php/api/member/get_member_info',
     method: 'post',
-    getCacheUid: ({ reqBody: Q, resBody: R }) => Q.openid && ({ uid: R?.data?.info?.nickname, data: `${Q.openid}@UID_${R?.data?.info?.nickname}` }),
+    getCacheUid: ({ reqBody: Q, resBody: R }) =>
+      Q.openid && { uid: R?.data?.info?.nickname, data: `${Q.openid}@UID_${R?.data?.info?.nickname}` },
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
     updateEnvValue: /@([\da-z]+)/i,
   },
-];
+  {
+    on: 'res-body',
+    ruleId: 'mshy',
+    desc: '慕思会员中心-小程序签到',
+    url: 'https://atom.musiyoujia.com/member/wechatlogin/selectuserinfo',
+    method: 'post',
+    getCacheUid: ({ reqBody: Q, resBody: B, headers: H }) => {
+      const uid = B?.data?.resMemberInfo?.userId;
+      const openId = B?.data?.resMemberInfo?.openId || Q?.openId;
+      if (uid && H.api_token && openId) {
+        return { uid, data: `${H.api_token}#${openId}##${uid}` };
+      }
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    updateEnvValue: /##(\d+)/i,
+  },
+  {
+    on: 'res-body',
+    ruleId: 'wawo',
+    desc: '所有女生会员中心-小程序',
+    url: 'https://7.wawo.cc/api/account/wx/member/base',
+    method: 'get',
+    getCacheUid: ({ resBody: R, headers }) => (headers.authorization ? { uid: R?.data?.cardNo } : nulll),
+    handler: ({ cacheData: D }) => ({
+      envConfig: { value: D.map(d => `${d.headers.authorization.replace(/bearer /i, '')}`).join('\n'), sep: '\n' },
+    }),
+    // updateEnvValue: /&([\d\*]+)/,
+  },
+  {
+    on: 'req-header',
+    desc: '广东/福建体彩服务号',
+    ruleId: 'gdtc',
+    url: 'https://cdn.pnup-hd.tcssyw.com/api/act/**',
+    getCacheUid({ url, reqBody: R, headers: H, req, X }) {
+      if (!R && req._readableState?.buffer) {
+        R = X.FeUtils.getUrlParams(req._readableState.buffer.toString());
+      }
 
+      if (R.uuid && R.accessToken) {
+        return { uid: R.uuid, data: `${R.uuid}&${R.accessToken}` };
+      }
+    },
+    handler: ({ cacheData: D }) => ({ envConfig: { sep: '\n', value: D.map(v => v.data).join('\n') } }),
+    updateEnvValue: /^([^&]+)&/,
+  },
+];

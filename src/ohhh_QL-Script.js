@@ -59,7 +59,7 @@ module.exports = [
     url: 'https://planet-api.op.yadea.com.cn/user-api/app/user/getUsertoken',
     method: 'post',
     getCacheUid: ({ resBody: R, headers }) => headers.authorization && { uid: R?.object?.userinfo?.userid },
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.authorization}&${d.uid}`).join('\n') } }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.authorization}&${d.uid}`).join('\n'), sep: '\n' } }),
     updateEnvValue: /&([\d\*]+)/,
   },
   {
@@ -69,8 +69,8 @@ module.exports = [
     url: 'https://p.xpfarm.cn/treemp/user.PersonalCenter/getInfo',
     method: 'post',
     getCacheUid: ({ resBody: R, headers }) => headers.authorization && ({ uid: R?.data?.id }),
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.authorization}&${d.uid}`).join('\n') } }),
-    updateEnvValue: /&([\d\*]+)/,
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.authorization}&${d.uid}`).join('\n'), sep: '\n' } }),
+    updateEnvValue: /&.+/,
   },
   {
     on: 'res-body',
@@ -89,7 +89,7 @@ module.exports = [
     url: 'https://prod-api.nissinfoodium.com.cn/gw-shop/app/v1/user-center/detail?type=1',
     method: 'GET',
     getCacheUid: ({ resBody: R, headers }) => headers.token && ({ uid: R?.data?.user_id }),
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.token}&${d.uid}`).join('\n') } }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.token}&${d.uid}`).join('\n'), sep: '\n' } }),
     updateEnvValue: /&([\d\*]+)/,
   },
   {
@@ -99,7 +99,7 @@ module.exports = [
     url: 'https://ump.ems.com.cn/memberCenterApiV2/member/findByOpenIdAppId',
     method: 'post',
     getCacheUid: ({ reqBody: Q, resBody: R }) => Q.openId && ({ uid: R?.data?.user_id, data: `${Q.openId}&${R.data?.user_id}` }),
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n'), sep: '\n' } }),
     updateEnvValue: /&([\da-z]+)/,
   },
   {
@@ -112,7 +112,7 @@ module.exports = [
       if (typeof Q.params === 'string') Q = JSON.parse(Q.params);
       return { uid: Q.bindid, data: `${Q.bindid}` }; // &${R.data?.tkmid}
     },
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n'), sep: '\n' } }),
     updateEnvValue: /&([\da-z]+)/,
   },
   {

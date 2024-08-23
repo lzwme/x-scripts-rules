@@ -1,10 +1,3 @@
-/*
- * @Author: renxia
- * @Date: 2024-02-06 11:25:49
- * @LastEditors: renxia
- * @LastEditTime: 2024-05-30 16:18:14
- * @Description:
- */
 /** @type {import('@lzwme/whistle.x-scripts').RuleItem[]} */
 module.exports = [
   // https://raw.githubusercontent.com/leafTheFish/DeathNote/main/ddgy.js
@@ -108,15 +101,13 @@ module.exports = [
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.data || d.headers.cookie}`).join('\n') } }),
   },
   {
-    on: 'req-header',
+    on: 'res-body',
     ruleId: 'JJCookie',
     desc: '掘金签到',
     url: 'https://api.juejin.cn/user_api/v1/user/get**',
     method: 'get',
-    // getCacheUid: ({ cookieObj: C }) => C.userid,
-    getCacheUid({ url, headers, X }) {
-      const uid = X.FeUtils.getUrlParams(url.split('?')[1] || '').uuid;
-      // X.FeUtils.cookieStringfiy(C, { onlyKeys: [] });
+    getCacheUid({ headers, resBody: B }) {
+      const uid = B?.data?.user_id || B?.data?.user_basic?.user_id;
       if (uid && headers.cookie) return { uid };
     },
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers.cookie}##${d.uid}`).join('\n') } }),

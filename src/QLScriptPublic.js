@@ -1,11 +1,3 @@
-/*
- * @Author: renxia
- * @Date: 2024-01-24 08:54:08
- * @LastEditors: renxia
- * @LastEditTime: 2024-08-09 09:08:31
- * @Description:
- */
-
 /** @type {import('@lzwme/whistle.x-scripts').RuleItem[]} */
 module.exports = [
   {
@@ -50,12 +42,21 @@ module.exports = [
     on: 'res-body',
     ruleId: 'ylnn',
     desc: '伊利牛奶小程序',
-    method: 'get',
-    url: 'https://msmarket.msx.digitalyili.com/gateway/api/auth/account/user/info',
-    getCacheUid: ({ resBody }) => resBody?.data?.userId,
-    handler({ allCacheData }) {
-      const value = allCacheData.map(d => d.headers['access-token']).join('\n');
-      if (value) return { envConfig: { name: this.ruleId, value } };
+    method: '*',
+    url: 'https://msmarket.msx.digitalyili.com/gateway/api/auth/account/**',
+    getCacheUid: ({ resBody, headers: H }) => {
+      const uid = resBody?.data?.userId || resBody?.data?.userInfo?.userId;
+      if (uid && H['access-token']) return uid;
+    },
+    handler({ cacheData: C }) {
+      const value = C.map(d => d.headers['access-token']).join('\n');
+      if (value)
+        return {
+          envConfig: [
+            { name: this.ruleId, value },
+            { name: 'YLXL', value: C.map(d => d.headers['access-token']).join('&'), sep: '&' }, // 伊利系列小程序
+          ],
+        };
     },
   },
   {
@@ -281,7 +282,7 @@ module.exports = [
     url: 'https://app.yuebuy.cn/api/user/{UserCenter,getUserInfo}',
     getCacheUid: ({ headers, resBody, url }) => {
       const uid = resBody?.data?.id || resBody?.data?.user?.id;
-      if (uid) return { uid, data: `${ resBody.data.token || resBody.data.user?.token || headers['x-auth-token']}##${uid}` };
+      if (uid) return { uid, data: `${resBody.data.token || resBody.data.user?.token || headers['x-auth-token']}##${uid}` };
     },
     handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
   },
@@ -290,12 +291,19 @@ module.exports = [
     ruleId: 'hlToken',
     desc: '哈啰签到',
     method: 'POST',
-    url: 'https://api.hellobike.com/api?user.wallet.account',
+    url: 'https://*.hellobike.com/api?*',
     getCacheUid: ({ resBody, reqBody, url }) => {
-      const uid = resBody?.data?.userNewId;
-      if (uid) return { uid, data: `${reqBody.token}##${uid}` };
+      try {
+        const uid = findKeyValue(resBody, 'userNewId');
+        if (uid) {
+          console.log('uid', uid, url);
+          return { uid, data: `${reqBody.token}##${uid}` };
+        }
+      } catch (e) {
+        console.log(e);
+      }
     },
-    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
+    handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(v => v.data).join('\n') } }),
   },
   {
     on: 'req-header',
@@ -373,3 +381,33 @@ module.exports = [
     handler: ({ allCacheData: D }) => ({ envConfig: { value: D.map(d => d.headers.cookie).join('\n') } }),
   },
 ];
+
+function findKeyValue(obj, key) {
+  let val;
+
+  try {
+    if (!obj || !key || typeof obj !== 'object') return;
+
+    if (Buffer.isBuffer(obj)) obj = JSON.parse(obj.toString());
+
+    if (Array.isArray(obj)) {
+      for (const o of obj) {
+        val = findKeyValue(o, key);
+        if (val != null) break;
+      }
+
+      return val;
+    }
+
+    if (key in obj) return obj[key];
+
+    for (let k in obj) {
+      val = findKeyValue(obj[k], key);
+      if (val != null) return val;
+    }
+  } catch (e) {
+    console.log('[findKeyValue][error]', e);
+  }
+
+  return val;
+}
