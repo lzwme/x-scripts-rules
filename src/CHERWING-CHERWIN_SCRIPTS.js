@@ -34,4 +34,21 @@ module.exports = [
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('&'), sep: '&' } }),
     updateEnvValue: /@UID_(\d+)/,
   },
+  {
+    on: 'res-body',
+    ruleId: 'AMX',
+    desc: '安慕希-小程序',
+    url: 'https://wx-amxshop.msxapi.digitalyili.com/api/user/getUser',
+    method: 'get',
+    getCacheUid: ({ headers, resBody: B }) => {
+      if (headers.accesstoken) {
+        const uid = B?.data?.user?.id;
+        return { uid, data: `${headers.accesstoken}@UID_${uid}` };
+      }
+    },
+    handler: ({ cacheData: D }) => ({
+      envConfig: { value: D.map(v => v.data).join('&'), sep: '&' },
+    }),
+    updateEnvValue: /@UID_(\d+)/,
+  },
 ];
