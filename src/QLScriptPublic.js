@@ -91,7 +91,7 @@ module.exports = [
     ruleId: 'jsbaxfls',
     desc: '杰士邦安心福利社',
     method: 'get',
-    url: 'https://vip.ixiliu.cn/mp/user/info',
+    url: 'https://xh-vip-api.a-touchin.com/mp/user/info',
     getCacheUid: ({ resBody, headers }) => {
       const uid = resBody?.data?.userInfo?.user_id;
       if (uid) return { uid, data: `${headers['access-token']}##${uid}` };

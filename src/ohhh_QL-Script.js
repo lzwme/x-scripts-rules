@@ -228,4 +228,13 @@ module.exports = [
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.uid}&${d.headers.authorization}`).join('\n'), sep: '\n' } }),
     updateEnvValue: /(\d+)&/,
   },
+  {
+    on: 'req-header',
+    ruleId: 'lslyg',
+    desc: '冷酸灵牙膏小程序签到',
+    url: 'https://consumer-api.quncrm.com/**',
+    method: 'post',
+    getCacheUid: ({ headers: H, url }) => ({ uid: H['x-account-id'] }),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.uid}&${d.headers['x-access-token']}`).join('\n'), sep: '\n' } }),
+  }
 ];
