@@ -111,20 +111,21 @@ module.exports = [
     // updateEnvValue: /&([\d\*]+)/,
   },
   {
-    on: 'req-header',
+    on: 'res-body',
     desc: '广东/福建体彩服务号',
     ruleId: 'gdtc',
-    url: 'https://cdn.pnup-hd.tcssyw.com/api/act/**',
-    getCacheUid({ url, reqBody: R, headers: H, req, X }) {
+    url: 'https://pnup-hd.tcssyw.com/api/act/get_sign_use',
+    getCacheUid({ url, reqBody: R,resBody: B = {}, headers: H, req, X }) {
       if (!R && req._readableState?.buffer) {
         R = X.FeUtils.getUrlParams(req._readableState.buffer.toString());
       }
 
-      if (R.uuid && R.accessToken) {
-        return { uid: R.uuid, data: `${R.uuid}&${R.accessToken}` };
+      if (R.uuid && R.accessToken && B.data?.memberId) {
+        const uid = B.data.memberId;
+        return { uid, data: `${R.uuid}&${R.accessToken}&${uid}` };
       }
     },
     handler: ({ cacheData: D }) => ({ envConfig: { sep: '\n', value: D.map(v => v.data).join('\n') } }),
-    updateEnvValue: /^([^&]+)&/,
+    updateEnvValue: /^&(\d+)$/,
   },
 ];

@@ -33,6 +33,11 @@ module.exports = {
     if (headers['mt-lng']) cache.lng = headers['mt-lng'];
     if (headers['mt-lat']) cache.lat = headers['mt-lat'];
     if (headers['mt-token']) cache.token = headers['mt-token'];
+
+    Object.entries(cache).forEach(([key, val]) => {
+      if (val === 'undifined') cache[key] = '';
+    });
+
     console.log('geuid:', cache)
     return {
       /** user 唯一性标记 */

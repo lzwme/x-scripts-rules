@@ -122,6 +122,16 @@ module.exports = [
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers['access-token']}##${d.uid}`).join('\n') } }),
   },
   {
+    on: 'res-body',
+    ruleId: 'aima',
+    desc: '爱玛会员俱乐部-小程序',
+    url: 'https://scrm.aimatech.com/aima/wxclient/member/IndexInfo',
+    method: 'get',
+    getCacheUid: ({ resBody: R, headers }) => (headers['access-token'] ? { uid: R?.content?.id } : nulll),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers['access-token']}##${d.uid}`).join('\n') } }),
+    // updateEnvValue: /&([\d\*]+)/,
+  },
+  {
     ruleId: 'WS_JWCN_SIGN',
     desc: '奇奥超市签到',
     method: 'get',
