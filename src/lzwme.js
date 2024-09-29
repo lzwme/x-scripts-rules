@@ -67,7 +67,7 @@ module.exports = [
       const uid = resBody?.context?.currentUser.id;
       if (uid) return { uid, data: `${headers.cookie.replace(/ XD=[^;]+;/, '')}##${uid}` };
     },
-    handler: ({ cacheData: d }) => ({ envConfig: { value: d.map(d => `${d.data}`).join('\n') } }),
+    handler: ({ cacheData: d }) => ({ envConfig: { value: d.map(d => `${d.data}`).join('\n'), sep: '\n' } }),
     updateEnvValue: /##(\d+)/,
   },
   {
