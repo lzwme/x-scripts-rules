@@ -132,19 +132,13 @@ module.exports = [
     // updateEnvValue: /&([\d\*]+)/,
   },
   {
-    ruleId: 'WS_JWCN_SIGN',
-    desc: '奇奥超市签到',
+    on: 'res-body',
+    ruleId: 'mypd',
+    desc: '漫游胖达-小程序',
+    url: 'https://pw.gzych.vip/ykb_huiyuan/api/v2/MemberMine/BasicInfo',
     method: 'get',
-    url: 'https://ws.jwcn.net/weixinpl/card/card_sign.php?card_member_id=*',
-    on: 'req-header',
-    getCacheUid({ url, cookieObj: C }) {
-      const query = X.FeUtils.getUrlParams(url.split('?')[1] || '');
-      return {
-        uid: query.card_member_id,
-        data: `card_member_id=${query.card_member_id};card_id=${query.card_id};PHPSESSID=${C.PHPSESSID}`,
-      };
-    },
-    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => d.data).join('\n') } }),
-    updateEnvValue: /card_member_id=[^;]+/,
+    getCacheUid: ({ resBody: R, headers }) => (headers['authorization'] ? { uid: R?.Data?.CardNo } : nulll),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers['authorization']}##${d.uid}`).join('\n') } }),
+    // updateEnvValue: /&([\d\*]+)/,
   },
 ];
