@@ -141,4 +141,14 @@ module.exports = [
     handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.headers['authorization']}##${d.uid}`).join('\n') } }),
     // updateEnvValue: /&([\d\*]+)/,
   },
+  {
+    on: 'res-body',
+    ruleId: 'aicnn_token',
+    desc: 'AICNN签到 token 提取',
+    source: 'https://github.com/lzwme/ql-scripts/blob/main/ql_aicnn.ts',
+    url: 'https://api.aicnn.cn/app-api/system/auth/refresh-token*',
+    method: 'post',
+    getCacheUid: ({ resBody: R, headers }) => (R?.data?.userId ? { uid: R.data.userId, data: R.data.refreshToken } : nulll),
+    handler: ({ cacheData: D }) => ({ envConfig: { value: D.map(d => `${d.data}##${d.uid}`).join('\n') } }),
+  },
 ];
