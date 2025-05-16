@@ -61,11 +61,11 @@ module.exports = [
     on: 'res-body',
     ruleId: 'xmly_cookie',
     desc: '喜马拉雅签到 cookie 获取',
-    url: 'https://m.ximalaya.com/starwar/task/listen/serverTime',
+    url: ['https://m.ximalaya.com/starwar/task/listen/serverTime', 'https://pc.ximalaya.com/pc-application-server/user/isNew', 'http://xmc.ximalaya.com/xmlymain-login-web/**'],
     method: '*',
-    getCacheUid: ({ headers, resBody }) => {
-      const uid = resBody?.context?.currentUser.id;
-      if (uid) return { uid, data: `${headers.cookie.replace(/ XD=[^;]+;/, '')}##${uid}` };
+    getCacheUid: ({ headers, resBody = {} }) => {
+      const uid = resBody.context?.currentUser.id || resBody.data?.uid || resBody.data?.userId;
+      if (uid && headers.cookie?.includes('token')) return { uid, data: `${headers.cookie.replace(/ XD=[^;]+;/, '')}##${uid}` };
     },
     handler: ({ cacheData: d }) => ({ envConfig: { value: d.map(d => `${d.data}`).join('\n'), sep: '\n' } }),
     updateEnvValue: /##(\d+)/,
